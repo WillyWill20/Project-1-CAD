@@ -29,6 +29,14 @@ BINARY_PREPROC_DIR       = BINARY_DATASET_DIR / "preprocessed"
 BINARY_PREPROC_TRAIN_DIR = BINARY_PREPROC_DIR / "train"
 BINARY_PREPROC_VAL_DIR   = BINARY_PREPROC_DIR / "val"
 
+PREPROCESSING_PARAMS = dict(
+    resizing_dim=450,   # shorter side after vignette crop: 2.34% of train images < 450
+    kernel_size=17,     # hair removal: black-hat kernel
+    threshold=10,       # hair removal: black-hat threshold
+    min_length=40,      # hair removal: min skeleton length of a hair (px)
+    max_width=10,       # hair removal: max average width of a hair (px)
+)
+
 # ---------------------------------------------------------------------------
 # Challenge 2 - Multiclass (bcc / mel / scc)
 # ---------------------------------------------------------------------------
