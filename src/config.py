@@ -21,6 +21,14 @@ BINARY_TRAIN_DIR   = BINARY_DATASET_DIR / "train"
 BINARY_VAL_DIR     = BINARY_DATASET_DIR / "val"
 BINARY_GT_TRAIN_CSV = BINARY_DATASET_DIR / "train_ground_truth.csv"
 
+BINARY_CLASS_FOLDERS = {0: "nevus", 1: "others"}
+
+BINARY_GT_VAL_CSV = BINARY_DATASET_DIR / "val_ground_truth.csv"
+
+BINARY_PREPROC_DIR       = BINARY_DATASET_DIR / "preprocessed"
+BINARY_PREPROC_TRAIN_DIR = BINARY_PREPROC_DIR / "train"
+BINARY_PREPROC_VAL_DIR   = BINARY_PREPROC_DIR / "val"
+
 # ---------------------------------------------------------------------------
 # Challenge 2 - Multiclass (bcc / mel / scc)
 # ---------------------------------------------------------------------------
