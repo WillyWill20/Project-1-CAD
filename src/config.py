@@ -24,6 +24,7 @@ BINARY_GT_TRAIN_CSV = BINARY_DATASET_DIR / "train_ground_truth.csv"
 BINARY_CLASS_FOLDERS = {0: "nevus", 1: "others"}
 
 BINARY_GT_VAL_CSV = BINARY_DATASET_DIR / "val_ground_truth.csv"
+BINARY_GT_TRAIN_SUBSET_CSV = BINARY_DATASET_DIR / "train_subset_ground_truth.csv"
 
 BINARY_PREPROC_DIR       = BINARY_DATASET_DIR / "preprocessed"
 BINARY_PREPROC_TRAIN_DIR = BINARY_PREPROC_DIR / "train"
@@ -36,6 +37,24 @@ PREPROCESSING_PARAMS = dict(
     min_length=40,      # hair removal: min skeleton length of a hair (px)
     max_width=10,       # hair removal: max average width of a hair (px)
 )
+
+SUBSET_N_NEVUS = 2500
+SUBSET_OTHERS_PER_SUBTYPE = {
+    "ack": 500,
+    "bcc": 500,
+    "bkl": 500,
+    "mel": 500,
+    "scc": None,   # None = take all (376)
+    "def": None,   # take all (143)
+    "vac": None,   # take all (151)
+}
+
+FEATURES_DIR = ROOT_DIR / "features"
+BINARY_FEATURES_TRAIN_CSV = FEATURES_DIR / "binary_train_features.csv"
+BINARY_FEATURES_VAL_CSV   = FEATURES_DIR / "binary_val_features.csv"
+
+CLASS_NAMES  = {0: "nevus", 1: "others"}
+CLASS_COLORS = {0: "#3987e5", 1: "#d95926"}   # blue / orange
 
 # ---------------------------------------------------------------------------
 # Challenge 2 - Multiclass (bcc / mel / scc)
