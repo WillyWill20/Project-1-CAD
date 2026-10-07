@@ -59,6 +59,29 @@ def plot_feature_distributions(df, cols, ncols=6, bins=30):
     plt.tight_layout()
     plt.show()
 
+UNIT_CONVERSIONS = {
+    "hsv_h": (lambda v: v * 2,          "Hue (°)"),
+    "hsv_s": (lambda v: v / 255 * 100,  "Saturation (%)"),
+    "hsv_v": (lambda v: v / 255 * 100,  "Value (%)"),
+    "lab_l": (lambda v: v / 255 * 100,  "L* (0-100)"),
+    "lab_a": (lambda v: v - 128,        "a*  (green -  /  red +)"),
+    "lab_b": (lambda v: v - 128,        "b*  (blue -  /  yellow +)"),
+}
+
+
+def histogram_x_axis(prefix, n_bins):
+    """x positions and axis label for the bins of one histogram feature group."""
+    if prefix.startswith("hist_"):
+        channel = prefix[len("hist_"):].rstrip("_")           # 'hist_lab_a_' -> 'lab_a'
+        low, high = HIST_RANGES[channel]
+        edges = np.linspace(low, high, n_bins + 1)
+        centers = (edges[:-1] + edges[1:]) / 2                 # centre of each bin
+        convert, label = UNIT_CONVERSIONS[channel]
+        return convert(centers), label
+
+    # LBP: bin i = number of neighbours >= centre pixel (uniform patterns), last bin = non-uniform
+    return np.arange(n_bins), "LBP code (neighbours >= centre; last = non-uniform)"
+
 def plot_mean_histograms(df, prefixes, ncols=3):
     """Average histogram per class (line) +- 1 std (band), one panel per prefix."""
     nrows = int(np.ceil(len(prefixes) / ncols))
@@ -66,14 +89,14 @@ def plot_mean_histograms(df, prefixes, ncols=3):
 
     for ax, prefix in zip(axes.flat, prefixes):
         cols = [c for c in df.columns if c.startswith(prefix)]
-        x = np.arange(len(cols))
+        x, xlabel = histogram_x_axis(prefix, len(cols))
         for label in [0, 1]:
             values = df.loc[df["label"] == label, cols]
             mean, std = values.mean().values, values.std().values
             ax.plot(x, mean, linewidth=2, color=CLASS_COLORS[label], label=CLASS_NAMES[label])
             ax.fill_between(x, mean - std, mean + std, color=CLASS_COLORS[label], alpha=0.2)
         ax.set_title(prefix.rstrip("_"), fontsize=10)
-        ax.set_xlabel("bin")
+        ax.set_xlabel(xlabel)
 
     for ax in axes.flat[len(prefixes):]:
         ax.axis("off")

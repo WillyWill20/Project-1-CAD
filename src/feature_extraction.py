@@ -2,6 +2,7 @@ import numpy as np
 import cv2
 from scipy.stats import skew, kurtosis
 from skimage.feature import local_binary_pattern, graycomatrix, graycoprops
+from src.config import *
 
 
 def to_color_spaces(img):
@@ -26,27 +27,27 @@ def color_moments(img):
     return features
 
 
-def color_histograms(img, n_bins=16):
+def color_histograms(img, n_bins=16, ranges=HIST_RANGES):
     """Normalised 16-bin histogram of each channel in HSV and Lab -> 96 features."""
     features = {}
     spaces = to_color_spaces(img)
     for space in ["hsv", "lab"]:
         for c, channel in enumerate(space):
-            values = spaces[space][:, :, c].ravel()
-            max_value = 180 if (space == "hsv" and channel == "h") else 256   # OpenCV hue: 0-179
-            hist, _ = np.histogram(values, bins=n_bins, range=(0, max_value))
+            low, high = ranges[f"{space}_{channel}"]
+            values = np.clip(spaces[space][:, :, c].ravel(), low, high)   # outliers go into the end bins
+            hist, _ = np.histogram(values, bins=n_bins, range=(low, high))
             hist = hist / hist.sum()
             for i, v in enumerate(hist):
                 features[f"hist_{space}_{channel}_{i}"] = v
     return features
 
 
-def lbp_features(gray):
-    """Rotation-invariant uniform LBP histograms for (P=8, R=1) and (P=16, R=2) -> 28 features."""
+def lbp_features(gray, configs=((8, 1), (16, 2), (24, 3), (24, 5))):
+    """Rotation-invariant uniform LBP histograms for several (P, R) -> 10 + 18 + 26 + 26 = 80 features."""
     features = {}
-    for P, R in [(8, 1), (16, 2)]:
+    for P, R in configs:
         lbp = local_binary_pattern(gray, P, R, method="uniform")
-        n_bins = P + 2                                 # P+1 uniform patterns + 1 "non-uniform" bin
+        n_bins = P + 2
         hist, _ = np.histogram(lbp, bins=n_bins, range=(0, n_bins))
         hist = hist / hist.sum()
         for i, v in enumerate(hist):
@@ -75,7 +76,6 @@ def glcm_features(gray, distances=(1, 3, 5), levels=64):
 
 
 def extract_features(img):
-    """All Priority 1 features of one preprocessed RGB image -> 178 features."""
     gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
     features = {}
     features.update(color_moments(img))

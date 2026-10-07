@@ -56,6 +56,15 @@ BINARY_FEATURES_VAL_CSV   = FEATURES_DIR / "binary_val_features.csv"
 CLASS_NAMES  = {0: "nevus", 1: "others"}
 CLASS_COLORS = {0: "#3987e5", 1: "#d95926"}   # blue / orange
 
+HIST_RANGES = {
+    "hsv_h": (0, 180),
+    "hsv_s": (0, 159),  # Values obtained from looking at 400 images
+    "hsv_v": (0, 256),
+    "lab_l": (0, 256),
+    "lab_a": (120, 158), # Values obtained from looking at 400 images
+    "lab_b": (117, 156), # VValues obtained from looking at 400 images
+}
+
 # ---------------------------------------------------------------------------
 # Challenge 2 - Multiclass (bcc / mel / scc)
 # ---------------------------------------------------------------------------

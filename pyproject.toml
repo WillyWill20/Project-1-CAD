@@ -5,6 +5,7 @@ requires-python = ">=3.12,<3.13"
 dependencies = [
     "ipykernel>=7.4.0",
     "matplotlib>=3.11.2",
+    "nbformat>=5.11.1",
     "numpy>=2.5.3",
     "opencv-python>=5.0.0.93",
     "pandas>=3.0.6",
