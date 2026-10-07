@@ -15,7 +15,7 @@ def to_color_spaces(img):
 
 
 def color_moments(img):
-    """Mean, std, skewness and kurtosis of each channel in RGB, HSV and Lab -> 36 features."""
+    """Mean, std, skewness and kurtosis of each channel in RGB, HSV and Lab -> 36 features_1."""
     features = {}
     for space, converted in to_color_spaces(img).items():
         for c, channel in enumerate(space):            # 'rgb' -> 'r', 'g', 'b'
@@ -28,7 +28,7 @@ def color_moments(img):
 
 
 def color_histograms(img, n_bins=16, ranges=HIST_RANGES):
-    """Normalised 16-bin histogram of each channel in HSV and Lab -> 96 features."""
+    """Normalised 16-bin histogram of each channel in HSV and Lab -> 96 features_1."""
     features = {}
     spaces = to_color_spaces(img)
     for space in ["hsv", "lab"]:
@@ -43,7 +43,7 @@ def color_histograms(img, n_bins=16, ranges=HIST_RANGES):
 
 
 def lbp_features(gray, configs=((8, 1), (16, 2), (24, 3), (24, 5))):
-    """Rotation-invariant uniform LBP histograms for several (P, R) -> 10 + 18 + 26 + 26 = 80 features."""
+    """Rotation-invariant uniform LBP histograms for several (P, R) -> 10 + 18 + 26 + 26 = 80 features_1."""
     features = {}
     for P, R in configs:
         lbp = local_binary_pattern(gray, P, R, method="uniform")
@@ -56,7 +56,7 @@ def lbp_features(gray, configs=((8, 1), (16, 2), (24, 3), (24, 5))):
 
 
 def glcm_features(gray, distances=(1, 3, 5), levels=64):
-    """Haralick features for 3 distances, averaged over 4 angles -> 18 features."""
+    """Haralick features_1 for 3 distances, averaged over 4 angles -> 18 features_1."""
     gray_q = (gray // (256 // levels)).astype(np.uint8)    # 256 -> 64 grey levels
     angles = [0, np.pi / 4, np.pi / 2, 3 * np.pi / 4]
     glcm = graycomatrix(gray_q, distances=distances, angles=angles,

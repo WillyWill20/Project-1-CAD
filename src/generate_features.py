@@ -1,5 +1,5 @@
 """
-Extract features from all preprocessed images and save them as CSV.
+Extract features_1 from all preprocessed images and save them as CSV.
 
 Run from the project root:
     uv run python -m src.generate_features

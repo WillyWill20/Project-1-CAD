@@ -49,9 +49,9 @@ SUBSET_OTHERS_PER_SUBTYPE = {
     "vac": None,   # take all (151)
 }
 
-FEATURES_DIR = ROOT_DIR / "features"
-BINARY_FEATURES_TRAIN_CSV = FEATURES_DIR / "binary_train_features.csv"
-BINARY_FEATURES_VAL_CSV   = FEATURES_DIR / "binary_val_features.csv"
+FEATURES_1_DIR = ROOT_DIR / "features_1"
+BINARY_FEATURES_TRAIN_CSV = FEATURES_1_DIR / "binary_train_features.csv"
+BINARY_FEATURES_VAL_CSV   = FEATURES_1_DIR / "binary_val_features.csv"
 
 CLASS_NAMES  = {0: "nevus", 1: "others"}
 CLASS_COLORS = {0: "#3987e5", 1: "#d95926"}   # blue / orange
