@@ -6,7 +6,8 @@ Run from the project root:
 """
 import pandas as pd
 from src.config import *
-from src.utils import build_ground_truth, preprocess_dataset
+from src.utils import *
+from src.preprocessing import *
 
 
 def main():
