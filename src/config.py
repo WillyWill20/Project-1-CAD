@@ -11,7 +11,7 @@ ROOT_DIR = Path(__file__).resolve().parent.parent
 DATASET_DIR   = ROOT_DIR / "dataset"
 SRC_DIR       = ROOT_DIR / "src"
 NOTEBOOKS_DIR = ROOT_DIR / "notebooks"
-RESULTS_DIR   = ROOT_DIR / "image-results"
+RESULTS_DIR   = ROOT_DIR / "ml-results"
 
 # ---------------------------------------------------------------------------
 # Challenge 1 - Binary (nevus vs others)
@@ -63,6 +63,16 @@ HIST_RANGES = {
     "lab_l": (0, 256),
     "lab_a": (120, 158), # Values obtained from looking at 400 images
     "lab_b": (117, 156), # VValues obtained from looking at 400 images
+}
+
+MODELS_DIR = ROOT_DIR / "models"
+MODEL_COLORS = {
+    "LogReg":        "#3987e5",   # blue
+    "SVM (RBF)":     "#d95926",   # orange
+    "Random Forest": "#199e70",   # aqua
+    "HistGradBoost": "#c98500",   # yellow
+    "XGBoost":       "#d55181",   # magenta
+    "CatBoost":      "#008300",   # green
 }
 
 # ---------------------------------------------------------------------------

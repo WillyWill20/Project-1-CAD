@@ -24,7 +24,7 @@ def extract_dataset_features(gt, preproc_dir, n_jobs=-2):
 
 
 def main():
-    FEATURES_DIR.mkdir(parents=True, exist_ok=True)
+    FEATURES_1_DIR.mkdir(parents=True, exist_ok=True)
 
     gt_train = pd.read_csv(BINARY_GT_TRAIN_SUBSET_CSV)
     print(f"Train: {len(gt_train)} images")

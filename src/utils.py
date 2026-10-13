@@ -6,6 +6,8 @@ import cv2
 from src.config import *
 from skimage.segmentation import clear_border
 from skimage.morphology import skeletonize
+from sklearn.metrics import roc_curve, roc_auc_score, confusion_matrix, ConfusionMatrixDisplay
+
 
 def random_sample(df, n=9, seed=None):
     if seed is None:
@@ -103,3 +105,26 @@ def plot_mean_histograms(df, prefixes, ncols=3):
     axes.flat[0].legend(fontsize=8)
     plt.tight_layout()
     plt.show()
+
+def plot_roc(ax, y_true, scores, label, color, linestyle="-"):
+    """Add one ROC curve to ax, with its AUC in the legend."""
+    fpr, tpr, _ = roc_curve(y_true, scores)
+    auc = roc_auc_score(y_true, scores)
+    ax.plot(fpr, tpr, color=color, linestyle=linestyle, linewidth=2, label=f"{label} (AUC {auc:.3f})")
+
+
+def finish_roc(ax, title):
+    """Chance line, axis labels, legend."""
+    ax.plot([0, 1], [0, 1], color="gray", linestyle=":", linewidth=1)
+    ax.set_xlabel("False positive rate (1 - specificity)")
+    ax.set_ylabel("True positive rate (sensitivity)")
+    ax.set_title(title)
+    ax.legend(loc="lower right", fontsize=8)
+    ax.set_aspect("equal")
+
+
+def plot_confusion(ax, y_true, y_pred, title):
+    cm = confusion_matrix(y_true, y_pred)
+    ConfusionMatrixDisplay(cm, display_labels=["nevus", "others"]).plot(
+        ax=ax, cmap="Blues", colorbar=False, values_format="d")
+    ax.set_title(title, fontsize=10)
