@@ -1,5 +1,5 @@
 """Run the standard 6-model comparison for one experiment.
-   This comes from the exploratory notebook baseline_classification.ipynb."""
+   This comes from the exploratory notebook baseline-classification.ipynb."""
 import pandas as pd
 from sklearn.base import clone
 from sklearn.pipeline import make_pipeline
