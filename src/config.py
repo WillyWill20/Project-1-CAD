@@ -52,6 +52,7 @@ SUBSET_OTHERS_PER_SUBTYPE = {
 FEATURES_1_DIR = ROOT_DIR / "features_1"
 BINARY_FEATURES_TRAIN_CSV = FEATURES_1_DIR / "binary_train_features.csv"
 BINARY_FEATURES_VAL_CSV   = FEATURES_1_DIR / "binary_val_features.csv"
+BINARY_FEATURES_TRAIN_FULL_CSV = FEATURES_1_DIR / "binary_train_full_features.csv"   # all 15195 train images
 
 CLASS_NAMES  = {0: "nevus", 1: "others"}
 CLASS_COLORS = {0: "#3987e5", 1: "#d95926"}   # blue / orange

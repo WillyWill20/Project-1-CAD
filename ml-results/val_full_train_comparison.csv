@@ -1,0 +1,4 @@
+,accuracy,balanced_accuracy,sensitivity,specificity,auc
+A - subset (5170),0.82,0.819,0.802,0.837,0.896
+"B - full, same params",0.841,0.841,0.838,0.844,0.919
+"C - full, retuned",0.842,0.842,0.838,0.845,0.918

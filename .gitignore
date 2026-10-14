@@ -17,3 +17,7 @@
 *.7z
 *.tgz
 
+
+# Python caches and local virtualenvs
+__pycache__/
+.venv-old/
