@@ -91,7 +91,7 @@ def shades_of_gray(img, p=6):
 
     return np.clip(corrected, 0, 255).astype(np.uint8)
 
-def preprocess_image(img, resizing_dim, kernel_size, threshold, min_length, max_width):
+def preprocess_image(img, resizing_dim, kernel_size, threshold, min_length, max_width, remove_hairs=True):
     # Step 1: remove vignette
     valid = get_valid_mask(img)
     if has_vignette(valid):
@@ -100,9 +100,10 @@ def preprocess_image(img, resizing_dim, kernel_size, threshold, min_length, max_
     # Step 2: common size
     img = resize_and_center_crop(img, resizing_dim)
 
-    # Step 3: hair removal
-    img, _ = remove_hair(img, kernel_size, threshold, min_length, max_width)
-
+    # Step 3: hair removal (can be switched off for experiments)
+    if remove_hairs:
+        img, _ = remove_hair(img, kernel_size, threshold, min_length, max_width)
+    
     # Step 4: colour constancy
     img = shades_of_gray(img)
     return img

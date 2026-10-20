@@ -1,0 +1,2 @@
+experiment,model,accuracy,balanced_accuracy,sensitivity,specificity,auc,accuracy_std,balanced_accuracy_std,sensitivity_std,specificity_std,auc_std
+E4 no hair removal,SVM (RBF),0.8576402321083172,0.8573460674157303,0.8662921348314608,0.8484,0.9269505617977527,0.010224042774779498,0.010145907066725194,0.016436785211604302,0.0134699665923862,0.008311678264185813

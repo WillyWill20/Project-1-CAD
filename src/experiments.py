@@ -64,13 +64,15 @@ def build_models(selector="passthrough"):
     }
 
 
-def run_experiment(name, X, y, selector="passthrough"):
+def run_experiment(name, X, y, selector="passthrough", only=None):
     """
     Evaluate the 6 models with 5-fold CV (3 of them tuned).
     Returns: results table (one row per model) and the fitted models (trained on all of X).
     """
     rows, fitted = [], {}
     for model_name, model in build_models(selector).items():
+        if only is not None and model_name not in only:
+            continue
         if model_name in PARAM_DISTS:
             search = RandomizedSearchCV(model, PARAM_DISTS[model_name], n_iter=N_ITER[model_name],
                                         scoring=SCORING, refit="balanced_accuracy", cv=CV,

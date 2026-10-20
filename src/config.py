@@ -75,6 +75,17 @@ MODEL_COLORS = {
     "CatBoost":      "#008300",   # green
 }
 
+# Variant: same pipeline without hair removal (experiment 2)
+PREPROCESSING_PARAMS_NOHAIR = {**PREPROCESSING_PARAMS, "remove_hairs": False}
+
+BINARY_PREPROC_NOHAIR_DIR       = BINARY_DATASET_DIR / "preprocessed_nohair"
+BINARY_PREPROC_NOHAIR_TRAIN_DIR = BINARY_PREPROC_NOHAIR_DIR / "train"
+BINARY_PREPROC_NOHAIR_VAL_DIR   = BINARY_PREPROC_NOHAIR_DIR / "val"
+
+FEATURES_2_DIR = ROOT_DIR / "features_2_nohair"
+BINARY_FEATURES_NOHAIR_TRAIN_CSV = FEATURES_2_DIR / "binary_train_features.csv"
+BINARY_FEATURES_NOHAIR_VAL_CSV   = FEATURES_2_DIR / "binary_val_features.csv"
+
 # ---------------------------------------------------------------------------
 # Challenge 2 - Multiclass (bcc / mel / scc)
 # ---------------------------------------------------------------------------
