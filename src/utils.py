@@ -15,8 +15,8 @@ def random_sample(df, n=9, seed=None):
     print("seed:", seed)
     return df.sample(n, random_state=seed)
 
-def load_image(filename, label, data_dir=BINARY_TRAIN_DIR):
-    path = data_dir / BINARY_CLASS_FOLDERS[label] / filename
+def load_image(filename, label, data_dir=BINARY_TRAIN_DIR, class_folders=BINARY_CLASS_FOLDERS):
+    path = data_dir / class_folders[label] / filename
     img = cv2.imread(str(path))                  # loads as BGR
     if img is None:
         raise FileNotFoundError(f"Image not found: {path}")
@@ -29,9 +29,9 @@ def load_preprocessed(filename, label, preproc_dir):
         raise FileNotFoundError(f"Preprocessed image not found: {path}  (run: python -m src.generate_processed_dataset)")
     return cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
-def build_ground_truth(data_dir):
+def build_ground_truth(data_dir, class_folders=BINARY_CLASS_FOLDERS):
     rows = []
-    for label, folder in BINARY_CLASS_FOLDERS.items():
+    for label, folder in class_folders.items():
         for path in sorted((data_dir / folder).glob("*.jpg")):
             rows.append({"filename": path.name, "label": label})
     return pd.DataFrame(rows)
@@ -127,8 +127,8 @@ def finish_roc(ax, title):
     ax.set_aspect("equal")
 
 
-def plot_confusion(ax, y_true, y_pred, title):
-    cm = confusion_matrix(y_true, y_pred)
-    ConfusionMatrixDisplay(cm, display_labels=["nevus", "others"]).plot(
+def plot_confusion(ax, y_true, y_pred, title, class_names=("nevus", "others")):
+    cm = confusion_matrix(y_true, y_pred, labels=range(len(class_names)))
+    ConfusionMatrixDisplay(cm, display_labels=list(class_names)).plot(
         ax=ax, cmap="Blues", colorbar=False, values_format="d")
     ax.set_title(title, fontsize=10)
