@@ -93,6 +93,19 @@ BINARY_FEATURES_NOHAIR_VAL_CSV   = FEATURES_2_DIR / "binary_val_features.csv"
 MULTI_DATASET_DIR = DATASET_DIR / "multiclass"
 MULTI_TRAIN_DIR   = MULTI_DATASET_DIR / "train"
 MULTI_VAL_DIR     = MULTI_DATASET_DIR / "val"
+MULTI_GT_TRAIN_CSV = MULTI_DATASET_DIR / "train_ground_truth.csv"
+MULTI_GT_VAL_CSV   = MULTI_DATASET_DIR / "val_ground_truth.csv"
+
+# Label encoding (order of the assignment: melanoma vs basal cell vs squamous cell carcinoma).
+# Change it only here if the test submission asks for another one.
+MULTI_CLASS_FOLDERS = {0: "mel", 1: "bcc", 2: "scc"}
+MULTI_CLASS_NAMES   = {0: "mel", 1: "bcc", 2: "scc"}
+MULTI_CLASS_COLORS  = {0: "#3987e5", 1: "#d95926", 2: "#199e70"}   # blue / orange / aqua
+
+# The multiclass images are the same files as the mel/bcc/scc images inside binary/{train,val}/others,
+# so their features are taken from the binary feature CSVs (no new preprocessing or extraction).
+MULTI_FEATURES_TRAIN_CSV = FEATURES_1_DIR / "multi_train_features.csv"
+MULTI_FEATURES_VAL_CSV   = FEATURES_1_DIR / "multi_val_features.csv"
 
 # ---------------------------------------------------------------------------
 # Misc
