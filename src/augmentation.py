@@ -1,10 +1,12 @@
 """
 Data augmentation of preprocessed images (Challenge 2: scc only).
 
-Each augmented copy combines, with random parameters:
-  1. random crop (85-100% of the area), resized back to the original size
-  2. rotation (any angle in +-90 deg) and scaling (0.9-1.1), empty borders filled by mirroring
-  3. brightness, contrast and saturation changes (x 0.8-1.2)
+Each augmented copy applies ONE transform with random parameters (exploration showed that
+combining all transforms in one copy moves the features too far, towards the bcc region):
+  copy 0 - crop: random crop (85-100% of the area), resized back to the original size
+  copy 1 - rotation_scale: rotation (any angle in +-90 deg) and scaling (0.9-1.1), borders filled by mirroring
+  copy 2 - brightness: x 0.8-1.2
+  copy 3 - contrast_saturation: contrast and saturation x 0.8-1.2
 No flips or exact 90 deg rotations (identical features with our invariant descriptors),
 no hue shift (colour casts are removed on purpose), no blur and no noise (images are already soft).
 """
@@ -20,6 +22,23 @@ AUG_PARAMS = dict(
     saturation=(0.8, 1.2),
 )
 
+# All transforms switched off (factor 1, angle 0, full crop)
+IDENTITY = dict(crop_area=(1.0, 1.0), angle=(0, 0), scale=(1.0, 1.0),
+                brightness=(1.0, 1.0), contrast=(1.0, 1.0), saturation=(1.0, 1.0))
+
+
+def only(**changes):
+    """Parameters with every transform switched off except the given ones."""
+    return {**IDENTITY, **changes}
+
+
+# One transform per augmented copy: (name, parameters)
+COPY_TRANSFORMS = [
+    ("crop",                only(crop_area=AUG_PARAMS["crop_area"])),
+    ("rotation_scale",      only(angle=AUG_PARAMS["angle"], scale=AUG_PARAMS["scale"])),
+    ("brightness",          only(brightness=AUG_PARAMS["brightness"])),
+    ("contrast_saturation", only(contrast=AUG_PARAMS["contrast"], saturation=AUG_PARAMS["saturation"])),
+]
 
 def random_crop(img, rng, area_range):
     """Square crop with a random fraction of the area at a random position, resized back."""

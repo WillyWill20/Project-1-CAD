@@ -21,7 +21,7 @@ import numpy as np
 from joblib import Parallel, delayed
 from src.utils import load_preprocessed
 from src.feature_extraction import extract_features
-from src.augmentation import augment_image
+from src.augmentation import augment_image, COPY_TRANSFORMS
 
 
 def sample_subset(gt, n_nevus, others_per_subtype, seed):
@@ -92,17 +92,19 @@ def build_multiclass(force):
 
 
 def augment_one(index, filename, label, n_copies):
-    """n_copies augmented versions of one preprocessed training image: saved as PNG + their features."""
+    """n_copies augmented versions of one preprocessed training image, one transform each (COPY_TRANSFORMS)."""
+    assert n_copies <= len(COPY_TRANSFORMS), "more copies than transforms in COPY_TRANSFORMS"
     rng = np.random.default_rng([RANDOM_STATE, index])          # reproducible, independent per image
     img = load_preprocessed(filename, label, MULTI_PREPROC_TRAIN_DIR, MULTI_CLASS_FOLDERS)
     rows = []
-    for k in range(n_copies):
-        aug = augment_image(img, rng)
-        name = filename.replace(".jpg", f"_aug{k}.png")
+    for k, (transform, params) in enumerate(COPY_TRANSFORMS[:n_copies]):
+        aug = augment_image(img, rng, params)
+        name = filename.replace(".jpg", f"_aug{k}_{transform}.png")
         out_path = MULTI_AUG_DIR / MULTI_CLASS_FOLDERS[label] / name
         out_path.parent.mkdir(parents=True, exist_ok=True)
         cv2.imwrite(str(out_path), cv2.cvtColor(aug, cv2.COLOR_RGB2BGR))
-        rows.append({"filename": name, "source_filename": filename, "label": label, **extract_features(aug)})
+        rows.append({"filename": name, "source_filename": filename, "transform": transform,
+                     "label": label, **extract_features(aug)})
     return rows
 
 
