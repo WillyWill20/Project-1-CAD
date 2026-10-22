@@ -7,6 +7,7 @@ from src.config import BINARY_TRAIN_DIR, BINARY_CLASS_FOLDERS
 from src.utils import *
 from skimage.segmentation import clear_border
 from skimage.morphology import skeletonize
+from joblib import Parallel, delayed
 
 def get_valid_mask(img, threshold=40):
     gray_img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
@@ -108,17 +109,19 @@ def preprocess_image(img, resizing_dim, kernel_size, threshold, min_length, max_
     img = shades_of_gray(img)
     return img
 
-def preprocess_dataset(gt, data_dir, out_dir, **params):
-    """Preprocess every image in gt and save it to out_dir/<class>/<name>.png"""
-    for i, r in enumerate(gt.itertuples()):
-        out_path = out_dir / BINARY_CLASS_FOLDERS[r.label] / r.filename.replace(".jpg", ".png")
-        if out_path.exists():            # already done -> skip (lets you resume)
-            continue
-        out_path.parent.mkdir(parents=True, exist_ok=True)
+def preprocess_one(filename, label, data_dir, out_dir, params, class_folders):
+    """Preprocess one image and save it as out_dir/<class>/<name>.png (skipped if it already exists)."""
+    out_path = out_dir / class_folders[label] / filename.replace(".jpg", ".png")
+    if out_path.exists():
+        return
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    img = preprocess_image(load_image(filename, label, data_dir, class_folders), **params)
+    cv2.imwrite(str(out_path), cv2.cvtColor(img, cv2.COLOR_RGB2BGR))   # OpenCV saves BGR
 
-        img = load_image(r.filename, r.label, data_dir)
-        img = preprocess_image(img, **params)
-        cv2.imwrite(str(out_path), cv2.cvtColor(img, cv2.COLOR_RGB2BGR))  # OpenCV saves BGR
 
-        if (i + 1) % 1000 == 0:
-            print(f"{i + 1} / {len(gt)}")
+def preprocess_dataset(gt, data_dir, out_dir, params, class_folders=BINARY_CLASS_FOLDERS, n_jobs=-2):
+    """Preprocess every image in gt in parallel (images already done are skipped, so it can be resumed)."""
+    Parallel(n_jobs=n_jobs, verbose=5)(
+        delayed(preprocess_one)(r.filename, r.label, data_dir, out_dir, params, class_folders)
+        for r in gt.itertuples()
+    )

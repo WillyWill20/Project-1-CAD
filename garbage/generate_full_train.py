@@ -13,7 +13,7 @@ from joblib import Parallel, delayed
 from src.config import *
 from src.utils import load_image
 from src.preprocessing import preprocess_image
-from src.generate_features import extract_dataset_features
+from garbage.generate_features import extract_dataset_features
 
 
 def preprocess_one(filename, label, data_dir, out_dir, params):

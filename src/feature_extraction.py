@@ -3,6 +3,9 @@ import cv2
 from scipy.stats import skew, kurtosis
 from skimage.feature import local_binary_pattern, graycomatrix, graycoprops
 from src.config import *
+from joblib import Parallel, delayed
+from src.utils import load_preprocessed
+import pandas as pd
 
 
 def to_color_spaces(img):
@@ -83,3 +86,15 @@ def extract_features(img):
     features.update(lbp_features(gray))
     features.update(glcm_features(gray))
     return features
+
+def features_of_one(filename, label, preproc_dir, class_folders):
+    img = load_preprocessed(filename, label, preproc_dir, class_folders)
+    return {"filename": filename, "label": label, **extract_features(img)}
+
+
+def extract_dataset_features(gt, preproc_dir, class_folders=BINARY_CLASS_FOLDERS, n_jobs=-2):
+    """Features of every image in gt (in the same order as gt), one row per image."""
+    rows = Parallel(n_jobs=n_jobs, verbose=5)(
+        delayed(features_of_one)(r.filename, r.label, preproc_dir, class_folders) for r in gt.itertuples()
+    )
+    return pd.DataFrame(rows)

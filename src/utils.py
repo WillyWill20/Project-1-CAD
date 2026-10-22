@@ -22,11 +22,11 @@ def load_image(filename, label, data_dir=BINARY_TRAIN_DIR, class_folders=BINARY_
         raise FileNotFoundError(f"Image not found: {path}")
     return cv2.cvtColor(img, cv2.COLOR_BGR2RGB)  # convert to RGB
 
-def load_preprocessed(filename, label, preproc_dir):
-    path = preproc_dir / BINARY_CLASS_FOLDERS[label] / filename.replace(".jpg", ".png")
+def load_preprocessed(filename, label, preproc_dir, class_folders=BINARY_CLASS_FOLDERS):
+    path = preproc_dir / class_folders[label] / filename.replace(".jpg", ".png")
     img = cv2.imread(str(path))
     if img is None:
-        raise FileNotFoundError(f"Preprocessed image not found: {path}  (run: python -m src.generate_processed_dataset)")
+        raise FileNotFoundError(f"Preprocessed image not found: {path}  (run: python -m src.build_dataset)")
     return cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
 def build_ground_truth(data_dir, class_folders=BINARY_CLASS_FOLDERS):

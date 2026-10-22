@@ -102,10 +102,20 @@ MULTI_CLASS_FOLDERS = {0: "mel", 1: "bcc", 2: "scc"}
 MULTI_CLASS_NAMES   = {0: "mel", 1: "bcc", 2: "scc"}
 MULTI_CLASS_COLORS  = {0: "#3987e5", 1: "#d95926", 2: "#199e70"}   # blue / orange / aqua
 
-# The multiclass images are the same files as the mel/bcc/scc images inside binary/{train,val}/others,
-# so their features are taken from the binary feature CSVs (no new preprocessing or extraction).
-MULTI_FEATURES_TRAIN_CSV = FEATURES_1_DIR / "multi_train_features.csv"
-MULTI_FEATURES_VAL_CSV   = FEATURES_1_DIR / "multi_val_features.csv"
+# Multiclass: preprocessed and feature-extracted as an independent dataset,
+# with the same preprocessing parameters as the binary problem (PREPROCESSING_PARAMS, HIST_RANGES)
+MULTI_PREPROC_DIR       = MULTI_DATASET_DIR / "preprocessed"
+MULTI_PREPROC_TRAIN_DIR = MULTI_PREPROC_DIR / "train"
+MULTI_PREPROC_VAL_DIR   = MULTI_PREPROC_DIR / "val"
+
+FEATURES_MULTI_DIR       = ROOT_DIR / "features_multiclass"
+MULTI_FEATURES_TRAIN_CSV = FEATURES_MULTI_DIR / "multi_train_features.csv"
+MULTI_FEATURES_VAL_CSV   = FEATURES_MULTI_DIR / "multi_val_features.csv"
+
+# Data augmentation (Step 4): class label -> augmented copies per training image (scc only)
+AUG_COPIES = {2: 4}
+MULTI_AUG_DIR          = MULTI_DATASET_DIR / "augmented" / "train"
+MULTI_FEATURES_AUG_CSV = FEATURES_MULTI_DIR / "multi_train_aug_features.csv"
 
 # ---------------------------------------------------------------------------
 # Misc
