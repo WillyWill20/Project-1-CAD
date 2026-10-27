@@ -1,0 +1,2 @@
+model,features,train_images,accuracy,balanced_accuracy,sensitivity,specificity,auc
+Stacking (F1),base + regional (442),15195,0.863277133825079,0.8631853920026435,0.8579088471849866,0.8684619368203004,0.9324666128900139
