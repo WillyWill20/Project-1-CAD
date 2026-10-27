@@ -20,7 +20,7 @@ import cv2
 import numpy as np
 from joblib import Parallel, delayed
 from src.utils import load_preprocessed
-from src.feature_extraction import extract_features, extract_extra_features
+from src.feature_extraction import extract_features, extract_extra_features, regional_features
 from src.augmentation import augment_image, COPY_TRANSFORMS
 
 
@@ -90,6 +90,20 @@ def build_multiclass(force):
     build_split("multiclass val", gt_val, MULTI_VAL_DIR, MULTI_PREPROC_VAL_DIR,
                 MULTI_FEATURES_VAL_CSV, MULTI_CLASS_FOLDERS, force)
 
+def build_multiclass_regional(force):
+    """G1 regional features (212) of the multiclass train, val and augmented scc images (already on disk)."""
+    splits = [("multiclass train", MULTI_GT_TRAIN_CSV, MULTI_PREPROC_TRAIN_DIR, MULTI_REGIONAL_TRAIN_CSV),
+              ("multiclass val", MULTI_GT_VAL_CSV, MULTI_PREPROC_VAL_DIR, MULTI_REGIONAL_VAL_CSV),
+              ("multiclass augmented", MULTI_FEATURES_AUG_CSV, MULTI_AUG_DIR, MULTI_REGIONAL_AUG_CSV)]
+    for name, gt_csv, image_dir, out_csv in splits:
+        if out_csv.exists() and not force:
+            print(f"[{name}] {out_csv.name} already exists, not recomputed (use --force)")
+            continue
+        gt = pd.read_csv(gt_csv, usecols=["filename", "label"])     # same row order as the base CSVs
+        print(f"[{name}] Extracting regional features of {len(gt)} images")
+        extract_dataset_features(gt, image_dir, MULTI_CLASS_FOLDERS,
+                                 extractor=regional_features).to_csv(out_csv, index=False)
+
 
 def augment_one(index, filename, label, n_copies):
     """n_copies augmented versions of one preprocessed training image, one transform each (COPY_TRANSFORMS)."""
@@ -139,9 +153,10 @@ def build_extra(force):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Preprocess images and extract features for one challenge.")
-    parser.add_argument("task", choices=["binary", "multiclass", "augment", "extra"])
+    parser.add_argument("task", choices=["binary", "multiclass", "augment", "extra", "multiclass_regional"])
     parser.add_argument("--force", action="store_true", help="recompute feature CSVs that already exist")
     args = parser.parse_args()
 
-    {"binary": build_binary, "multiclass": build_multiclass, "augment": build_augmented, "extra": build_extra}[args.task](args.force)
+    {"binary": build_binary, "multiclass": build_multiclass, "augment": build_augmented,
+     "extra": build_extra, "multiclass_regional": build_multiclass_regional}[args.task](args.force)
     print("\nDone.")

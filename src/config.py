@@ -122,6 +122,11 @@ FEATURES_3_DIR = ROOT_DIR / "features_3_extra"
 BINARY_EXTRA_TRAIN_FULL_CSV = FEATURES_3_DIR / "binary_train_full_extra.csv"
 BINARY_EXTRA_VAL_CSV        = FEATURES_3_DIR / "binary_val_extra.csv"
 
+# --- Regional features (G1, 212) for multiclass ---
+MULTI_REGIONAL_TRAIN_CSV = FEATURES_MULTI_DIR / "multi_train_regional.csv"
+MULTI_REGIONAL_VAL_CSV   = FEATURES_MULTI_DIR / "multi_val_regional.csv"
+MULTI_REGIONAL_AUG_CSV   = FEATURES_MULTI_DIR / "multi_train_aug_regional.csv"
+
 # ---------------------------------------------------------------------------
 # Misc
 # ---------------------------------------------------------------------------
