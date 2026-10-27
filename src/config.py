@@ -117,6 +117,11 @@ AUG_COPIES = {2: 4}
 MULTI_AUG_DIR          = MULTI_DATASET_DIR / "augmented" / "train"
 MULTI_FEATURES_AUG_CSV = FEATURES_MULTI_DIR / "multi_train_aug_features.csv"
 
+# --- Extra features (G1 regional + HoG), binary full train + val ---
+FEATURES_3_DIR = ROOT_DIR / "features_3_extra"
+BINARY_EXTRA_TRAIN_FULL_CSV = FEATURES_3_DIR / "binary_train_full_extra.csv"
+BINARY_EXTRA_VAL_CSV        = FEATURES_3_DIR / "binary_val_extra.csv"
+
 # ---------------------------------------------------------------------------
 # Misc
 # ---------------------------------------------------------------------------

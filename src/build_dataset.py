@@ -20,7 +20,7 @@ import cv2
 import numpy as np
 from joblib import Parallel, delayed
 from src.utils import load_preprocessed
-from src.feature_extraction import extract_features
+from src.feature_extraction import extract_features, extract_extra_features
 from src.augmentation import augment_image, COPY_TRANSFORMS
 
 
@@ -122,12 +122,26 @@ def build_augmented(force):
     features.to_csv(MULTI_FEATURES_AUG_CSV, index=False)
     print(f"{len(features)} augmented images -> {MULTI_FEATURES_AUG_CSV.name}")
 
+def build_extra(force):
+    """G1 regional + HoG features of the binary full train and val images (already preprocessed)."""
+    splits = [("binary train", BINARY_GT_TRAIN_CSV, BINARY_PREPROC_TRAIN_DIR, BINARY_EXTRA_TRAIN_FULL_CSV),
+              ("binary val", BINARY_GT_VAL_CSV, BINARY_PREPROC_VAL_DIR, BINARY_EXTRA_VAL_CSV)]
+    for name, gt_csv, preproc_dir, out_csv in splits:
+        if out_csv.exists() and not force:
+            print(f"[{name}] {out_csv.name} already exists, not recomputed (use --force)")
+            continue
+        gt = pd.read_csv(gt_csv)
+        print(f"[{name}] Extracting regional + HoG features of {len(gt)} images")
+        out_csv.parent.mkdir(parents=True, exist_ok=True)
+        extract_dataset_features(gt, preproc_dir, BINARY_CLASS_FOLDERS,
+                                 extractor=extract_extra_features).to_csv(out_csv, index=False)
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Preprocess images and extract features for one challenge.")
-    parser.add_argument("task", choices=["binary", "multiclass", "augment"])
+    parser.add_argument("task", choices=["binary", "multiclass", "augment", "extra"])
     parser.add_argument("--force", action="store_true", help="recompute feature CSVs that already exist")
     args = parser.parse_args()
 
-    {"binary": build_binary, "multiclass": build_multiclass, "augment": build_augmented}[args.task](args.force)
+    {"binary": build_binary, "multiclass": build_multiclass, "augment": build_augmented, "extra": build_extra}[args.task](args.force)
     print("\nDone.")

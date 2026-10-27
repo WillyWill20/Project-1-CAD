@@ -249,3 +249,54 @@ def augmented_cv(filenames, aug_sources, y, cv=CV):
         copies = n + np.flatnonzero(np.isin(source_idx, train_idx))
         splits.append((np.concatenate([train_idx, copies]), test_idx))
     return splits
+
+# ---------------------------------------------------------------------------
+# Ensembles
+# ---------------------------------------------------------------------------
+from sklearn.ensemble import VotingClassifier, StackingClassifier
+
+ENSEMBLE_KEYS = {"SVM (RBF)": "svm", "XGBoost": "xgb", "CatBoost": "cat", "HistGradBoost": "hgb",
+                 "Random Forest": "rf", "LogReg": "logreg"}
+
+
+def with_probabilities(model):
+    """Copy of a pipeline whose SVM (if any) also outputs probabilities (needed for soft voting)."""
+    model = clone(model)
+    for key in ("clf__probability", "clf__estimator__probability"):
+        if key in model.get_params():
+            model.set_params(**{key: True})
+    return model
+
+
+def build_ensembles(base_models):
+    """
+    Soft voting and stacking of already configured models (their hyperparameters stay fixed).
+      base_models: dict model name -> pipeline (e.g. the fitted models returned by run_experiment)
+    """
+    estimators = [(ENSEMBLE_KEYS.get(name, name), clone(m)) for name, m in base_models.items()]
+    return {
+        "Soft voting": VotingClassifier(
+            [(key, with_probabilities(m)) for key, m in estimators], voting="soft"),
+        "Stacking (LogReg)": StackingClassifier(
+            estimators, final_estimator=LogisticRegression(max_iter=5000),
+            cv=StratifiedKFold(n_splits=5, shuffle=True, random_state=RANDOM_STATE + 1), n_jobs=1),
+    }
+
+
+def run_ensembles(name, base_models, X, y, task="binary", cv=CV):
+    """
+    Cross-validate soft voting and stacking of base_models with the standard folds and metrics.
+    Returns a results table (same format as run_experiment) and the ensembles trained on all of X.
+    """
+    scoring, refit = TASKS[task]
+    members = " + ".join(base_models)
+    rows, fitted = [], {}
+    for ens_name, ens in build_ensembles(base_models).items():
+        scores = cross_validate(ens, X, y, cv=cv, scoring=scoring, n_jobs=-2)
+        means = {m: scores[f"test_{m}"].mean() for m in scoring}
+        stds = {m: scores[f"test_{m}"].std() for m in scoring}
+        fitted[ens_name] = clone(ens).fit(X, y)
+        rows.append({"experiment": name, "model": ens_name, **means,
+                     **{f"{m}_std": s for m, s in stds.items()}, "params": {"members": members}})
+        print(f"[{name}] {ens_name}: {refit} = {means[refit]:.3f}")
+    return pd.DataFrame(rows), fitted
