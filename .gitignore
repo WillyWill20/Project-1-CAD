@@ -20,7 +20,7 @@
 dataset/
 features_1/
 features_2_nohair/
-features_3_extra/
+features_3_extra/binary_train_full_extra.csv
 features_multiclass/
 
 # Python caches and local virtualenvs
