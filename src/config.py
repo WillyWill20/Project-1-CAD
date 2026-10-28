@@ -12,6 +12,8 @@ DATASET_DIR   = ROOT_DIR / "dataset"
 SRC_DIR       = ROOT_DIR / "src"
 NOTEBOOKS_DIR = ROOT_DIR / "notebooks"
 RESULTS_DIR   = ROOT_DIR / "ml-results"
+BINARY_RESULTS_DIR = RESULTS_DIR / "binary"
+MULTI_RESULTS_DIR  = RESULTS_DIR / "multiclass"
 
 # ---------------------------------------------------------------------------
 # Challenge 1 - Binary (nevus vs others)
@@ -66,7 +68,7 @@ HIST_RANGES = {
     "lab_b": (117, 156), # VValues obtained from looking at 400 images
 }
 
-MODELS_DIR = ROOT_DIR / "models"
+MODELS_DIR = ROOT_DIR / "best_final_models"
 MODEL_COLORS = {
     "LogReg":        "#3987e5",   # blue
     "SVM (RBF)":     "#d95926",   # orange

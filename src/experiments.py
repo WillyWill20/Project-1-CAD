@@ -1,7 +1,7 @@
 """
 Standard model comparison for one experiment, for both challenges:
-  - Challenge 1 (binary, nevus vs others): models chosen by balanced accuracy.
-  - Challenge 2 (multiclass, mel / bcc / scc): models chosen by Cohen's kappa.
+  - Challenge 1 (binary, nevus vs others): best_final_models chosen by balanced accuracy.
+  - Challenge 2 (multiclass, mel / bcc / scc): best_final_models chosen by Cohen's kappa.
 
 Every model is a pipeline:  scaler -> (optional) feature selector -> classifier.
 With weighted=True the classifier is trained with class weights whose strength (alpha)
@@ -112,7 +112,7 @@ N_ITER = {"SVM (RBF)": 40, "XGBoost": 20, "CatBoost": 15}
 
 
 def build_models(selector="passthrough", weighted=False):
-    """The 6 standard models, each as a pipeline: scaler -> selector -> classifier."""
+    """The 6 standard best_final_models, each as a pipeline: scaler -> selector -> classifier."""
     def pipe(clf):
         select = selector if selector == "passthrough" else clone(selector)
         if weighted:
@@ -143,7 +143,7 @@ def search_space(model_name, weighted=False):
 # ---------------------------------------------------------------------------
 def run_experiment(name, X, y, task="binary", selector="passthrough", weighted=False, only=None, cv=CV):
     """
-    Evaluate the standard models with cross-validation on (X, y).
+    Evaluate the standard best_final_models with cross-validation on (X, y).
       task:     "binary" or "multiclass" (decides the metrics and how the best configuration is chosen)
       selector: feature selection / reduction step inside the pipeline (e.g. SelectKBest, PCA)
       weighted: train with class weights; their strength alpha is searched in ALPHAS
@@ -151,7 +151,7 @@ def run_experiment(name, X, y, task="binary", selector="passthrough", weighted=F
       cv:       a CV splitter, or a list of (train_idx, test_idx) pairs (used for augmentation later)
     SVM, XGBoost and CatBoost are tuned with RandomizedSearchCV. The other 3 keep their default
     hyperparameters (only alpha is searched when weighted=True).
-    Returns: results table (one row per model) and the fitted models (best configuration, trained on all of X).
+    Returns: results table (one row per model) and the fitted best_final_models (best configuration, trained on all of X).
     """
     scoring, refit = TASKS[task]
     models = build_models(selector, weighted)
@@ -165,12 +165,12 @@ def run_experiment(name, X, y, task="binary", selector="passthrough", weighted=F
             continue
         space = search_space(model_name, weighted)
 
-        if model_name in PARAM_DISTS:          # tuned models
+        if model_name in PARAM_DISTS:          # tuned best_final_models
             search = RandomizedSearchCV(model, space, n_iter=N_ITER[model_name], scoring=scoring,
                                         refit=refit, cv=cv, n_jobs=-2, random_state=RANDOM_STATE)
-        elif space:                            # default models, only alpha to choose
+        elif space:                            # default best_final_models, only alpha to choose
             search = GridSearchCV(model, space, scoring=scoring, refit=refit, cv=cv, n_jobs=-2)
-        else:                                  # default models, nothing to choose
+        else:                                  # default best_final_models, nothing to choose
             search = None
 
         if search is not None:
@@ -270,8 +270,8 @@ def with_probabilities(model):
 
 def build_ensembles(base_models):
     """
-    Soft voting and stacking of already configured models (their hyperparameters stay fixed).
-      base_models: dict model name -> pipeline (e.g. the fitted models returned by run_experiment)
+    Soft voting and stacking of already configured best_final_models (their hyperparameters stay fixed).
+      base_models: dict model name -> pipeline (e.g. the fitted best_final_models returned by run_experiment)
     """
     estimators = [(ENSEMBLE_KEYS.get(name, name), clone(m)) for name, m in base_models.items()]
     return {
