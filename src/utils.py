@@ -7,6 +7,9 @@ from src.config import *
 from skimage.segmentation import clear_border
 from skimage.morphology import skeletonize
 from sklearn.metrics import roc_curve, roc_auc_score, confusion_matrix, ConfusionMatrixDisplay
+from sklearn.metrics import roc_auc_score
+from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import PCA
 
 
 def random_sample(df, n=9, seed=None):
@@ -45,17 +48,17 @@ def show_grid(images, titles):
     plt.tight_layout()
     plt.show()
 
-def plot_feature_distributions(df, cols, ncols=6, bins=30):
-    """One small histogram per feature, nevus vs others overlaid."""
+def plot_feature_distributions(df, cols, ncols=6, bins=30, class_names=CLASS_NAMES, class_colors=CLASS_COLORS):
+    """One small histogram per feature, classes overlaid."""
     nrows = int(np.ceil(len(cols) / ncols))
-    fig, axes = plt.subplots(nrows, ncols, figsize=(3 * ncols, 2.5 * nrows))
+    fig, axes = plt.subplots(nrows, ncols, figsize=(3 * ncols, 2.5 * nrows), squeeze=False)
 
     for ax, col in zip(axes.flat, cols):
-        bin_edges = np.histogram_bin_edges(df[col].dropna(), bins=bins)   # same bins for both classes
-        for label in [0, 1]:
+        bin_edges = np.histogram_bin_edges(df[col].dropna(), bins=bins)   # same bins for all classes
+        for label, name in class_names.items():
             values = df.loc[df["label"] == label, col]
             ax.hist(values, bins=bin_edges, density=True, histtype="step", linewidth=2,
-                    color=CLASS_COLORS[label], label=CLASS_NAMES[label])
+                    color=class_colors[label], label=name)
         ax.set_title(col, fontsize=9)
         ax.set_yticks([])
 
@@ -74,6 +77,69 @@ UNIT_CONVERSIONS = {
     "lab_b": (lambda v: v - 128,        "b*  (blue -  /  yellow +)"),
 }
 
+FEATURE_GROUP_PREFIXES = {
+    "colour moments":          ("rgb_", "hsv_", "lab_"),
+    "colour histograms":       "hist_",
+    "LBP":                     "lbp_",
+    "GLCM":                    "glcm_",
+    "reg. centre":             "reg_centre_",
+    "reg. centre - periphery": "reg_cmp_",
+    "reg. quadrant std":       "reg_qstd_",
+    "reg. asymmetry":          "reg_asym_",
+    "HoG":                     "hog_",
+}
+
+
+def feature_groups(columns):
+    """Feature columns grouped by family (base, regional, HoG) from their name prefixes."""
+    groups = {name: [c for c in columns if c.startswith(prefix)] for name, prefix in FEATURE_GROUP_PREFIXES.items()}
+    return {name: cols for name, cols in groups.items() if cols}
+
+
+def auc_separation(df, cols, pos=1, neg=0):
+    """|AUC - 0.5| of every feature for class pos vs class neg (0 = no separation, 0.5 = perfect)."""
+    sub = df[df["label"].isin([pos, neg])]
+    y = (sub["label"] == pos).astype(int)
+    return pd.Series({c: abs(roc_auc_score(y, sub[c]) - 0.5) for c in cols})
+
+
+def separation_by_group(separation, groups, top=50):
+    """Best and mean separation per feature group, and how many of the overall top features it has."""
+    top_features = set(separation.nlargest(top).index)
+    return pd.DataFrame({name: {"features": len(cols),
+                                "best": separation[cols].max(),
+                                "mean": separation[cols].mean(),
+                                f"in top-{top}": len(top_features & set(cols))}
+                         for name, cols in groups.items()}).T
+
+
+def max_abs_correlation(df, new_cols, ref_cols):
+    """For every new feature, its highest |Pearson correlation| with any reference feature (1 = redundant)."""
+    def zscore(M):
+        M = M - M.mean(axis=0)
+        std = M.std(axis=0)
+        std[std == 0] = 1                       # constant columns -> correlation 0
+        return M / std
+    corr = zscore(df[new_cols].values.astype(float)).T @ zscore(df[ref_cols].values.astype(float)) / len(df)
+    return pd.Series(np.abs(corr).max(axis=1), index=new_cols)
+
+
+def pca_3d(df, cols, title, class_names=CLASS_NAMES, class_colors=CLASS_COLORS, n_points=3000, seed=RANDOM_STATE):
+    """3-component PCA of the standardised features; interactive 3D scatter of a random sample of images."""
+    import plotly.express as px
+    pca = PCA(n_components=3, random_state=seed)
+    P = pca.fit_transform(StandardScaler().fit_transform(df[cols]))
+    points = pd.DataFrame(P, columns=["PC1", "PC2", "PC3"])
+    points["class"] = df["label"].map(class_names).values
+    points["filename"] = df["filename"].values
+    points = points.sample(min(n_points, len(points)), random_state=seed)
+
+    fig = px.scatter_3d(points, x="PC1", y="PC2", z="PC3", color="class", hover_data=["filename"], opacity=0.6,
+                        color_discrete_map={class_names[k]: v for k, v in class_colors.items()},
+                        title=f"{title} - {len(cols)} features, explained variance {pca.explained_variance_ratio_.sum():.1%}")
+    fig.update_traces(marker=dict(size=3))
+    fig.show()
+    return pca
 
 def histogram_x_axis(prefix, n_bins):
     """x positions and axis label for the bins of one histogram feature group."""
