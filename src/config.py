@@ -129,6 +129,16 @@ MULTI_REGIONAL_TRAIN_CSV = FEATURES_MULTI_DIR / "multi_train_regional.csv"
 MULTI_REGIONAL_VAL_CSV   = FEATURES_MULTI_DIR / "multi_val_regional.csv"
 MULTI_REGIONAL_AUG_CSV   = FEATURES_MULTI_DIR / "multi_train_aug_regional.csv"
 
+
+# --- Test sets (final submission) ---
+BINARY_TEST_DIR          = BINARY_DATASET_DIR / "testX"
+MULTI_TEST_DIR           = MULTI_DATASET_DIR / "testX"
+BINARY_PREPROC_TEST_DIR  = BINARY_PREPROC_DIR / "test"
+MULTI_PREPROC_TEST_DIR   = MULTI_PREPROC_DIR / "test"
+BINARY_FEATURES_TEST_CSV = FEATURES_3_DIR / "binary_test_features.csv"        # base + regional
+MULTI_FEATURES_TEST_CSV  = FEATURES_MULTI_DIR / "multi_test_features.csv"     # base + regional
+SUBMISSION_DIR           = ROOT_DIR / "submission"
+
 # ---------------------------------------------------------------------------
 # Misc
 # ---------------------------------------------------------------------------
